@@ -1,37 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 
 export default function DeepBreathingScreen() {
-  const [countdown, setCountdown] = useState(10);
   const router = useRouter();
 
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown]);
+  const openYouTube = () => {
+    Linking.openURL('https://www.youtube.com/watch?v=acUZdGd_3Dg');
+  };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Deep Breathing Exercise</Text>
 
-      <Text style={styles.description}>
-        Sit or stand comfortably with your elbows slightly back to allow full chest expansion.
-        {"\n\n"}1️⃣ Take a deep breath and hold it as long as possible.
-        {"\n\n"}2️⃣ Exhale slowly and cough strongly.
-        {"\n\n"}3️⃣ Repeat for 10 breaths.
-      </Text>
+      {/* Button to open YouTube */}
+      <TouchableOpacity style={styles.videoButton} onPress={openYouTube}>
+        <Text style={styles.videoButtonText}>Watch on YouTube</Text>
+      </TouchableOpacity>
 
-      <Text style={styles.timer}>Time Left: {countdown}s</Text>
-
-      {countdown === 0 ? (
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/exercise')}>
-          <Text style={styles.buttonText}>Go Back</Text>
-        </TouchableOpacity>
-      ) : null}
-    </View>
+      {/* Button to go back */}
+      <TouchableOpacity style={styles.button} onPress={() => router.push('/exercise')}>
+        <Text style={styles.buttonText}>Go Back</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 }
 
@@ -48,16 +39,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  description: {
-    fontSize: 16,
-    textAlign: 'center',
+  videoButton: {
+    backgroundColor: '#D32F2F',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 25,
     marginBottom: 20,
   },
-  timer: {
-    fontSize: 30,
+  videoButtonText: {
+    fontSize: 18,
+    color: '#FFF',
     fontWeight: 'bold',
-    color: '#D32F2F',
-    marginBottom: 20,
   },
   button: {
     backgroundColor: '#1976D2',

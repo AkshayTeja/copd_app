@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { collection, addDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db, auth } from './firebase'; // adjust path if needed
+import { getAuth } from 'firebase/auth';
 
 export default function CommunityChatScreen() {
   const router = useRouter();
   const [messages, setMessages] = useState<{ id: string; text: string; sender: string }[]>([]);
   const [newMessage, setNewMessage] = useState('');
 
-  // Function to show chat guidelines
+  // Fetch messages from Firestore in real-time
+  useEffect(() => {
+    const q = query(collection(db, 'communityMessages'), orderBy('createdAt'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const msgs: any[] = [];
+      querySnapshot.forEach((doc) => {
+        msgs.push({ id: doc.id, ...doc.data() });
+      });
+      setMessages(msgs);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const showGuidelines = () => {
     Alert.alert(
       "Community Chat Guidelines",
@@ -17,22 +33,24 @@ export default function CommunityChatScreen() {
     );
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (newMessage.trim() === '') return;
 
-    const messageData = {
-      id: Date.now().toString(),
-      text: newMessage,
-      sender: 'User', // Placeholder for now
-    };
+    const user = auth.currentUser;
+    const sender = user?.displayName || user?.email || 'Anonymous';
 
-    setMessages([...messages, messageData]);
+    await addDoc(collection(db, 'communityMessages'), {
+      text: newMessage,
+      sender,
+      createdAt: new Date()
+    });
+
     setNewMessage('');
   };
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-      {/* Header Section with Back & Info Buttons */}
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.push('/dashboard')}>
           <Ionicons name="arrow-back-outline" size={30} color="#1976D2" />
@@ -43,12 +61,12 @@ export default function CommunityChatScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Description Below the Heading */}
+      {/* Description */}
       <Text style={styles.description}>
         🗣️ Share your COPD journey, ask questions, and connect with others experiencing similar challenges.
       </Text>
 
-      {/* Messages List */}
+      {/* Messages */}
       <FlatList
         data={messages}
         keyExtractor={(item) => item.id}
@@ -60,7 +78,7 @@ export default function CommunityChatScreen() {
         )}
       />
 
-      {/* Input & Send Button */}
+      {/* Input */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -76,7 +94,7 @@ export default function CommunityChatScreen() {
   );
 }
 
-// Styles
+// Styles remain the same...
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -146,4 +164,3 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
 });
-

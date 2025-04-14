@@ -1,10 +1,64 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { auth, db } from './firebase'; // Firebase imports
+import { doc, getDoc } from 'firebase/firestore';  // Firestore imports
+import * as Notifications from 'expo-notifications'; // Import Expo Notifications
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const [userData, setUserData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userDoc = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userDoc);
+
+        if (userSnap.exists()) {
+          setUserData(userSnap.data());
+        } else {
+          console.log("No user data found");
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  // Function to request notification permissions
+  async function registerForPushNotificationsAsync() {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    // Request permission if not already granted
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      Alert.alert('Notification Permission', 'Failed to get push token for push notification!');
+      return;
+    }
+    // Optionally, get and log the push token for later use
+    const tokenData = await Notifications.getExpoPushTokenAsync();
+    console.log('Expo Push Token:', tokenData.data);
+    Alert.alert('Notification Permission', 'Notifications are enabled!');
+  }
+
+  // Handler when pressing the "Manage Notifications" button
+  const handleManageNotifications = async () => {
+    await registerForPushNotificationsAsync();
+  };
+
+  if (!userData) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -16,35 +70,35 @@ export default function ProfileScreen() {
       {/* Profile Header */}
       <View style={styles.header}>
         <Image source={require('../assets/images/profile.png')} style={styles.profileImage} />
-        <Text style={styles.userName}>John Doe</Text>
-        <Text style={styles.userEmail}>johndoe@example.com</Text>
+        <Text style={styles.userName}>{userData.name}</Text>
+        <Text style={styles.userEmail}>{userData.email}</Text>
       </View>
 
       {/* Health Information */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Health Information</Text>
-        <Text style={styles.infoText}>COPD Severity: Moderate</Text>
-        <Text style={styles.infoText}>Smoking History: 5 Years</Text>
-        <Text style={styles.infoText}>Current Medications: Albuterol, Inhaler</Text>
+        <Text style={styles.infoText}>COPD Severity: {userData.copdSeverity}</Text>
+        <Text style={styles.infoText}>Smoking History: {userData.smokingHistory}</Text>
+        <Text style={styles.infoText}>Current Medications: {userData.medications}</Text>
       </View>
 
       {/* Symptom Tracking & Activity */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Activity & Tracking</Text>
-        <Text style={styles.infoText}>Last Symptom Entry: Shortness of Breath (Moderate) - Yesterday</Text>
-        <Text style={styles.infoText}>Last Exercise Completed: Deep Breathing - Today</Text>
+        <Text style={styles.infoText}>Last Symptom Entry: {userData.lastSymptom}</Text>
+        <Text style={styles.infoText}>Last Exercise Completed: {userData.lastExercise}</Text>
       </View>
 
       {/* Doctor Info */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Doctor & Care Team</Text>
-        <Text style={styles.infoText}>Primary Doctor: Dr. Sarah Johnson</Text>
-        <Text style={styles.infoText}>Next Appointment: March 10, 2024</Text>
+        <Text style={styles.infoText}>Primary Doctor: {userData.doctor}</Text>
+        <Text style={styles.infoText}>Next Appointment: {userData.nextAppointment}</Text>
       </View>
 
       {/* Settings & Logout */}
       <View style={styles.settingsContainer}>
-        <TouchableOpacity style={styles.settingButton} onPress={() => alert('Manage Notifications')}>
+        <TouchableOpacity style={styles.settingButton} onPress={handleManageNotifications}>
           <Ionicons name="notifications-outline" size={24} color="#555" />
           <Text style={styles.settingText}>Manage Notifications</Text>
         </TouchableOpacity>
@@ -123,18 +177,18 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   settingText: {
-    fontSize: 16,
     marginLeft: 10,
+    fontSize: 16,
   },
   logoutButton: {
-    backgroundColor: '#D32F2F',
+    backgroundColor: '#E53935',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
   },
   logoutText: {
-    fontSize: 18,
     color: '#FFF',
+    fontSize: 18,
     fontWeight: 'bold',
   },
 });
