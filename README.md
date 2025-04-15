@@ -1,50 +1,64 @@
-# Welcome to your Expo app 👋
+# 🫁 COPD Care App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile application built using **React Native (Expo)** and **Google Firestore**, designed to help users manage Chronic Obstructive Pulmonary Disease (COPD) by tracking symptoms, connecting with doctors, and providing educational and community support.
 
-## Get started
+---
 
-1. Install dependencies
+## 📱 Features
 
-   ```bash
-   npm install
-   ```
+- 🔐 **User Authentication** (Firestore)
+  - Login, Register, and Profile Management
 
-2. Start the app
+- 📊 **Symptom Tracker**
+  - Track daily symptoms (e.g., breathlessness, coughing, fatigue)
+  - View weekly summary in **Bar Chart** format (AsyncStorage)
 
-   ```bash
-    npx expo start
-   ```
+- 📍 **Find Doctors Near You**
+  - Fetches user location to display nearby COPD specialists
 
-In the output, you'll find options to open the app in a
+- 💬 **Community Chat**
+  - Real-time support and discussion with other users via Firestore
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- 📞 **Emergency Contact**
+  - Quick access button to call ambulance during symptom flare-ups
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- 🧘 **Exercise Module**
+  - Tailored routines for COPD symptom relief and lung function
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## 🛠️ Tech Stack
+
+- **React Native with Expo**
+- **Firebase Authentication & Firestore**
+- **AsyncStorage** for local data
+
+---
+
+## 📸 Screenshots
+
+> Add your app screenshots below:
+
+| Login Screen | Symptom Tracker | Dashboard |
+|--------------|------------------|-----------|
+| ![Login](./screenshots/login.png) | ![Tracker](./screenshots/tracker.png) | ![Dashboard](./screenshots/dashboard.png) |
+
+> You can add more images under `./screenshots/` folder.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js
+- Expo CLI
+- Firebase project setup
+
+### Installation
 
 ```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+git clone https://github.com/yourusername/copd-care-app.git
+cd copd-care-app
+npm install
+npx expo start
