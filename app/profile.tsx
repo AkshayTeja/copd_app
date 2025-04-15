@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { auth, db } from './firebase'; // Firebase imports
-import { doc, getDoc } from 'firebase/firestore';  // Firestore imports
-import * as Notifications from 'expo-notifications'; // Import Expo Notifications
+import { auth, db } from './firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import * as Notifications from 'expo-notifications';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const [userData, setUserData] = useState<any>(null);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -20,7 +21,7 @@ export default function ProfileScreen() {
         if (userSnap.exists()) {
           setUserData(userSnap.data());
         } else {
-          console.log("No user data found");
+          console.log('No user data found');
         }
       }
     };
@@ -28,11 +29,10 @@ export default function ProfileScreen() {
     fetchUserData();
   }, []);
 
-  // Function to request notification permissions
+  // Register for Push Notifications and send a test notification immediately
   async function registerForPushNotificationsAsync() {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
-    // Request permission if not already granted
     if (existingStatus !== 'granted') {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
@@ -41,15 +41,46 @@ export default function ProfileScreen() {
       Alert.alert('Notification Permission', 'Failed to get push token for push notification!');
       return;
     }
-    // Optionally, get and log the push token for later use
     const tokenData = await Notifications.getExpoPushTokenAsync();
     console.log('Expo Push Token:', tokenData.data);
     Alert.alert('Notification Permission', 'Notifications are enabled!');
+
+    // Send a push notification immediately after enabling it
+    sendPushNotification(tokenData.data);
   }
 
-  // Handler when pressing the "Manage Notifications" button
-  const handleManageNotifications = async () => {
-    await registerForPushNotificationsAsync();
+  // Function to send Push Notification
+  async function sendPushNotification(expoPushToken: string) {
+    const message = {
+      to: expoPushToken,
+      sound: 'default',
+      title: 'Welcome!',
+      body: 'You have successfully enabled notifications!',
+      data: { someData: 'Test data' },
+    };
+
+    await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(message),
+    });
+
+    console.log('Push notification sent!');
+  }
+
+  const toggleNotifications = async () => {
+    const newValue = !notificationsEnabled;
+    setNotificationsEnabled(newValue);
+
+    if (newValue) {
+      await registerForPushNotificationsAsync();
+    } else {
+      Alert.alert('Notifications Disabled', 'You will no longer receive notifications.');
+      // Optionally remove/disable push token from the server
+    }
   };
 
   if (!userData) {
@@ -82,31 +113,19 @@ export default function ProfileScreen() {
         <Text style={styles.infoText}>Current Medications: {userData.medications}</Text>
       </View>
 
-      {/* Symptom Tracking & Activity */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Activity & Tracking</Text>
-        <Text style={styles.infoText}>Last Symptom Entry: {userData.lastSymptom}</Text>
-        <Text style={styles.infoText}>Last Exercise Completed: {userData.lastExercise}</Text>
-      </View>
-
-      {/* Doctor Info */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Doctor & Care Team</Text>
-        <Text style={styles.infoText}>Primary Doctor: {userData.doctor}</Text>
-        <Text style={styles.infoText}>Next Appointment: {userData.nextAppointment}</Text>
-      </View>
-
       {/* Settings & Logout */}
       <View style={styles.settingsContainer}>
-        <TouchableOpacity style={styles.settingButton} onPress={handleManageNotifications}>
+        <View style={styles.settingButton}>
           <Ionicons name="notifications-outline" size={24} color="#555" />
-          <Text style={styles.settingText}>Manage Notifications</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.settingButton} onPress={() => alert('Change Language')}>
-          <Ionicons name="globe-outline" size={24} color="#555" />
-          <Text style={styles.settingText}>Change Language</Text>
-        </TouchableOpacity>
+          <Text style={styles.settingText}>Notifications</Text>
+          <Switch
+            value={notificationsEnabled}
+            onValueChange={toggleNotifications}
+            style={{ marginLeft: 'auto' }}
+            trackColor={{ false: '#ccc', true: '#4CAF50' }}
+            thumbColor={'#fff'}
+          />
+        </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={() => router.push('/')}>
           <Text style={styles.logoutText}>Logout</Text>
@@ -116,7 +135,6 @@ export default function ProfileScreen() {
   );
 }
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
@@ -124,7 +142,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#F5F5F5',
   },
-  backButton: {  // 🔙 Back Button Styling
+  backButton: {
     alignSelf: 'flex-start',
     marginBottom: 10,
   },
