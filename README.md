@@ -38,15 +38,15 @@ A mobile application built using **React Native (Expo)** and **Google Firestore*
 ## 📸 Screenshots
 
 <div style="display: flex; gap: 10px;">
-  <img src="./screenshots/entry.jpeg" alt="Login" width="200" />
-  <img src="./screenshots/login.jpeg" alt="Login" width="200" />
-  <img src="./screenshots/dashboard.jpeg" alt="Dashboard" width="200" />
-  <img src="./screenshots/symptom.jpeg" alt="Dashboard" width="200" />
-  <img src="./screenshots/exercise.jpeg" alt="Dashboard" width="200" />
-  <img src="./screenshots/emergency.jpeg" alt="Dashboard" width="200" />
-  <img src="./screenshots/doctors.jpeg" alt="Dashboard" width="200" />
-  <img src="./screenshots/community.jpeg" alt="Dashboard" width="200" />
-  <img src="./screenshots/profile.jpeg" alt="Dashboard" width="200" />
+  <img src="./screenshots/entry.jpeg" alt="Login" width="200" height="400" />
+  <img src="./screenshots/login.jpeg" alt="Login" width="200" height="400"/>
+  <img src="./screenshots/dashboard.jpeg" alt="Dashboard" width="200" height="400"/>
+  <img src="./screenshots/symptom.jpeg" alt="Dashboard" width="200" height="400"/>
+  <img src="./screenshots/exercise.jpeg" alt="Dashboard" width="200" height="400"/>
+  <img src="./screenshots/emergency.jpeg" alt="Dashboard" width="200" height="400"/>
+  <img src="./screenshots/doctors.jpeg" alt="Dashboard" width="200" height="400"/>
+  <img src="./screenshots/community.jpeg" alt="Dashboard" width="200" height="400"/>
+  <img src="./screenshots/profile.jpeg" alt="Dashboard" width="200" height="400"/>
 </div>
 
 ---
